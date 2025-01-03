@@ -58,18 +58,21 @@ def classify_bread(image_file, action):
     elif action == "No es Pan":
         st.write("¡Clasificado como no pan!")
         move_image(image_file, NO_ES_PAN)  # Mover imagen a la carpeta correspondiente
+        
 # Interacción de swipe (simulada con botones)
 if image_files:
-    current_image = random.choice(image_files)  # Seleccionar una imagen aleatoria de la lista
+    # Elegir una imagen aleatoria al principio
+    current_image = random.choice(image_files)
     show_image_to_classify(os.path.join(CLASSIFY_DIR, current_image))  # Mostrar solo una imagen en la pantalla
 
+    # Botones de clasificación
     col1, col2, col3 = st.columns([1, 3, 1])
     with col1:
-        swipe_left = st.button("No Pan")
+        swipe_left = st.button("No")
     with col2:
-        swipe_right = st.button("Sí Pan")
+        swipe_right = st.button("Sí")
     with col3:
-        swipe_down = st.button("No es Pan")
+        swipe_down = st.button("NO es Pan")
 
     # Procesar clasificación
     if swipe_left:
@@ -84,8 +87,8 @@ if image_files:
 
     # Cargar siguiente imagen automáticamente
     if image_files:
-        current_image = random.choice(image_files)  # Elegir una nueva imagen aleatoria
-        show_image_to_classify(os.path.join(CLASSIFY_DIR, current_image))  # Mostrar la nueva imagen
+        next_image = random.choice(image_files)  # Elegir una nueva imagen aleatoria
+        show_image_to_classify(os.path.join(CLASSIFY_DIR, next_image))  # Mostrar la nueva imagen
 
 else:
     st.write("¡No hay más imágenes para clasificar!")
