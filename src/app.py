@@ -4,8 +4,8 @@ from PIL import Image
 import shutil
 
 # Configuración inicial
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))  # Ruta base del archivo actual
-CLASSIFY_DIR = os.path.join(BASE_DIR, "/workspaces/pretrainfoodclassificationwidget/data/Images_to_Classify/Bread Images to classify")
+BASE_DIR = os.path.abspath(".")
+CLASSIFY_DIR = os.path.join(BASE_DIR, "data/Images_to_Classify/Bread_Images_to_classify")
 YES_DIR = os.path.join(BASE_DIR, "data/classified/Yes_Sourdough_Bread")
 NO_DIR = os.path.join(BASE_DIR, "data/classified/No_Sourdough_Bread")
 
