@@ -50,19 +50,18 @@ st.markdown("""
 # Función de clasificación
 def classify_bread(image_file, action):
     if action == "Sí":
-        st.write("¡Clasificado como pan de masa madre!")
+        st.write("¡Clasificado con +90% de masa madre!")
         move_image(image_file, YES_DIR)  # Mover imagen a la carpeta correspondiente
     elif action == "No":
-        st.write("¡Clasificado como no pan de masa madre!")
+        st.write("¡Clasificado con -90% de de masa madre!")
         move_image(image_file, NO_DIR)  # Mover imagen a la carpeta correspondiente
     elif action == "No es Pan":
-        st.write("¡Clasificado como no es pan!")
+        st.write("¡Clasificado como no pan!")
         move_image(image_file, NO_ES_PAN)  # Mover imagen a la carpeta correspondiente
-
 # Interacción de swipe (simulada con botones)
 if image_files:
     current_image = random.choice(image_files)  # Seleccionar una imagen aleatoria de la lista
-    show_image_to_classify(os.path.join(CLASSIFY_DIR, current_image))
+    show_image_to_classify(os.path.join(CLASSIFY_DIR, current_image))  # Mostrar solo una imagen en la pantalla
 
     col1, col2, col3 = st.columns([1, 3, 1])
     with col1:
@@ -86,7 +85,7 @@ if image_files:
     # Cargar siguiente imagen automáticamente
     if image_files:
         current_image = random.choice(image_files)  # Elegir una nueva imagen aleatoria
-        show_image_to_classify(os.path.join(CLASSIFY_DIR, current_image))
+        show_image_to_classify(os.path.join(CLASSIFY_DIR, current_image))  # Mostrar la nueva imagen
 
 else:
     st.write("¡No hay más imágenes para clasificar!")
