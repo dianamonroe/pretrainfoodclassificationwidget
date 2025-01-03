@@ -3,6 +3,17 @@ import random
 import git
 import streamlit as st
 from PIL import Image
+from dotenv import load_dotenv
+
+# Cargar las variables de entorno desde el archivo .env
+load_dotenv()
+
+# Obtener el token de GitHub desde la variable de entorno
+GITHUB_TOKEN = os.getenv("GITHUB_TOKEN")
+
+# Verificar si el token de GitHub está cargado correctamente
+if not GITHUB_TOKEN:
+    raise ValueError("El token de GitHub no está definido. Asegúrate de que esté en tu archivo .env")
 
 # Directorios y configuración
 BASE_DIR = os.path.abspath(".")
@@ -21,23 +32,39 @@ def move_image(image_file, target_dir):
     try:
         # Mover imagen
         os.rename(os.path.join(CLASSIFY_DIR, image_file), os.path.join(target_dir, image_file))
-        # Realizar commit y push al repositorio
+
+        # Crear un objeto repo que apunta al directorio base de tu repositorio
         repo = git.Repo(BASE_DIR)
-        repo.git.add(os.path.join(target_dir, image_file))  # Añadir archivo al staging area
-        repo.index.commit(f"Clasificada imagen {image_file}")  # Crear commit
-        repo.git.push()  # Hacer push a GitHub
-        st.success(f"Imagen {image_file} movida a {target_dir} y cambios subidos a GitHub.")
+
+        # Añadir el archivo movido al staging area
+        repo.git.add(os.path.join(target_dir, image_file))
+
+        # Crear commit
+        repo.index.commit(f"Clasificada imagen {image_file}")
+
+        # Realizar push al repositorio usando el token de GitHub
+        repo.git.push(f"https://{GITHUB_TOKEN}@github.com/dianamonroe/pretrainfoodclassificationwidget.git")
+
+        # Mensaje de éxito
+        print(f"Imagen {image_file} movida a {target_dir} y cambios subidos a GitHub.")
+
     except Exception as e:
-        st.error(f"Error al mover la imagen {image_file}: {e}")
+        print(f"Error al mover la imagen {image_file}: {e}")
 
 # Cargar las imágenes
 image_files = os.listdir(CLASSIFY_DIR)
 image_files = [file for file in image_files if file.endswith(('jpg', 'png', 'jpeg'))]  # Filtrar solo imágenes
 
-# Función para mostrar imagen y clasificación
-def show_image_to_classify(image_path):
-    image = Image.open(image_path)
-    st.image(image, caption='¿Esto es pan con más de 90% de masa madre?', use_container_width=True)
+# Inicializar el índice de la imagen
+if 'current_index' not in st.session_state:
+    st.session_state.current_index = 0
+
+# Función para mostrar la imagen actual
+def show_image_to_classify():
+    if st.session_state.current_index < len(image_files):
+        current_image = image_files[st.session_state.current_index]
+        current_image_path = os.path.join(CLASSIFY_DIR, current_image)
+        st.image(Image.open(current_image_path), use_container_width=True, caption=None)
 
 # Título y subtítulo
 st.markdown("""
@@ -50,45 +77,45 @@ st.markdown("""
 # Función de clasificación
 def classify_bread(image_file, action):
     if action == "Sí":
-        st.write("¡Clasificado con +90% de masa madre!")
+        st.write("¡Clasificado como pan con +90% de masa madre!")
         move_image(image_file, YES_DIR)  # Mover imagen a la carpeta correspondiente
     elif action == "No":
-        st.write("¡Clasificado con -90% de de masa madre!")
+        st.write("¡Clasificado como pan con -90% de masa madre!")
         move_image(image_file, NO_DIR)  # Mover imagen a la carpeta correspondiente
     elif action == "No es Pan":
         st.write("¡Clasificado como no pan!")
         move_image(image_file, NO_ES_PAN)  # Mover imagen a la carpeta correspondiente
-        
-# Interacción de swipe (simulada con botones)
-if image_files:
-    # Elegir una imagen aleatoria al principio
-    current_image = random.choice(image_files)
-    show_image_to_classify(os.path.join(CLASSIFY_DIR, current_image))  # Mostrar solo una imagen en la pantalla
 
-    # Botones de clasificación
-    col1, col2, col3 = st.columns([1, 3, 1])
-    with col1:
-        swipe_left = st.button("No")
-    with col2:
-        swipe_right = st.button("Sí")
-    with col3:
-        swipe_down = st.button("NO es Pan")
+# Botones de clasificación
+col1, col2, col3 = st.columns([1, 3, 1])
+with col1:
+    swipe_left = st.button("No")
+with col2:
+    swipe_right = st.button("Sí")
+with col3:
+    swipe_down = st.button("No es Pan")
 
-    # Procesar clasificación
+# Procesar clasificación
+if st.session_state.current_index < len(image_files):
+    current_image = image_files[st.session_state.current_index]
+    
     if swipe_left:
         classify_bread(current_image, "No")
-        image_files.remove(current_image)  # Eliminar imagen clasificada
+        st.session_state.current_index += 1  # Avanzar al siguiente índice de imagen
     elif swipe_right:
         classify_bread(current_image, "Sí")
-        image_files.remove(current_image)  # Eliminar imagen clasificada
+        st.session_state.current_index += 1  # Avanzar al siguiente índice de imagen
     elif swipe_down:
         classify_bread(current_image, "No es Pan")
-        image_files.remove(current_image)  # Eliminar imagen clasificada
+        st.session_state.current_index += 1  # Avanzar al siguiente índice de imagen
 
-    # Cargar siguiente imagen automáticamente
-    if image_files:
-        next_image = random.choice(image_files)  # Elegir una nueva imagen aleatoria
-        show_image_to_classify(os.path.join(CLASSIFY_DIR, next_image))  # Mostrar la nueva imagen
+# Mostrar la imagen actual
+show_image_to_classify()
 
-else:
+# Mostrar mensaje si no hay más imágenes
+if st.session_state.current_index >= len(image_files):
     st.write("¡No hay más imágenes para clasificar!")
+
+# Realizar push final a GitHub para subir todos los cambios
+repo = git.Repo(BASE_DIR)
+repo.git.push(f"https://{GITHUB_TOKEN}@github.com/dianamonroe/pretrainfoodclassificationwidget.git")
