@@ -5,8 +5,6 @@ import streamlit as st
 from PIL import Image
 from dotenv import load_dotenv
 
-# Cargar las variables de entorno desde el archivo .env
-load_dotenv()
 
 # Obtener el token de GitHub desde la variable de entorno
 GITHUB_TOKEN = os.getenv("GITHUB_TOKEN")
@@ -21,6 +19,10 @@ CLASSIFY_DIR = os.path.join(BASE_DIR, "data/Images_to_Classify/Bread_Images_to_c
 YES_DIR = os.path.join(BASE_DIR, "data/classified/Yes_Sourdough_Bread")
 NO_DIR = os.path.join(BASE_DIR, "data/classified/No_Sourdough_Bread")
 NO_ES_PAN = os.path.join(BASE_DIR, "data/classified/NO_Bread")
+
+# Cargar las variables de entorno desde el archivo .env
+load_dotenv(dotenv_path=os.path.join(BASE_DIR, 'src/.env'))
+
 
 # Crear carpetas de destino si no existen
 os.makedirs(YES_DIR, exist_ok=True)
