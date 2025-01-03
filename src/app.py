@@ -26,7 +26,24 @@ def move_image(file_name, destination_dir):
     source_path = os.path.join(CLASSIFY_DIR, file_name)
     dest_path = os.path.join(destination_dir, file_name)
     shutil.move(source_path, dest_path)
-    st.success(f"Imagen '{file_name}' movida a '{destination_dir}'.")
+    st.success(f"Imagen movida a '{destination_dir}'.")
+
+# Función para retroceder a la imagen previa
+def reload_previous():
+    if st.session_state.current_index > 0:
+        st.session_state.current_index -= 1
+        st.info("Imagen previa cargada.")
+
+# Interfaz principal
+st.markdown(
+    """
+    <div style="text-align: center; margin-bottom: 30px;">
+        <h1>¿Esto es pan con más de 90% de masa madre?</h1>
+        <p>Desliza a la izquierda la foto si crees que <b>NO</b> o a la derecha si crees que <b>SÍ</b>.</p>
+    </div>
+    """, 
+    unsafe_allow_html=True
+)
 
 # Mostrar imagen actual
 if st.session_state.current_index < len(image_files):
@@ -34,21 +51,29 @@ if st.session_state.current_index < len(image_files):
     current_image_path = os.path.join(CLASSIFY_DIR, current_image)
     
     # Mostrar imagen
-    st.image(Image.open(current_image_path), caption=f"Clasificando: {current_image}", use_column_width=True)
+    st.image(Image.open(current_image_path), use_container_width=True, caption=None)
     
-    # Botones de clasificación
-    col1, col2 = st.columns(2)
+    # Columnas para deslizamiento
+    col1, col2 = st.columns([1, 1])
     with col1:
-        if st.button("Swipe Right: Pan por encima del 90% masa madre"):
-            move_image(current_image, YES_DIR)
-            st.session_state.current_index += 1  # Pasar a la siguiente imagen
-    with col2:
-        if st.button("Swipe Left: Pan por debajo del 90% masa madre"):
+        if st.button("⬅️ NO"):
             move_image(current_image, NO_DIR)
             st.session_state.current_index += 1  # Pasar a la siguiente imagen
+    with col2:
+        if st.button("➡️ SÍ"):
+            move_image(current_image, YES_DIR)
+            st.session_state.current_index += 1  # Pasar a la siguiente imagen
+
+    # Botón para recargar la imagen previa
+    st.button("🔄 Volver a la imagen anterior", on_click=reload_previous)
+
 else:
     st.success("¡Has clasificado todas las imágenes!")
     st.balloons()
 
 # Mostrar progreso
 st.sidebar.write(f"Progreso: {st.session_state.current_index}/{len(image_files)} imágenes clasificadas.")
+
+
+
+ 
