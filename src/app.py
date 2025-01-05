@@ -24,10 +24,10 @@ print("Token cargado correctamente")
 
 # Directorios y configuración
 BASE_DIR = os.path.abspath(".")
-CLASSIFY_DIR = os.path.join(BASE_DIR, "data/Images_to_Classify/Bread_Images_to_classify")
-YES_DIR = os.path.join(BASE_DIR, "data/classified/Yes_Sourdough_Bread")
-NO_DIR = os.path.join(BASE_DIR, "data/classified/No_Sourdough_Bread")
-NO_ES_PAN = os.path.join(BASE_DIR, "data/classified/NO_Bread")
+CLASSIFY_DIR = os.path.join(BASE_DIR, "src/data/Images_to_Classify/Bread_Images_to_classify")
+YES_DIR = os.path.join(BASE_DIR, "src/data/classified/Yes_Sourdough_Bread")
+NO_DIR = os.path.join(BASE_DIR, "src/data/classified/No_Sourdough_Bread")
+NO_ES_PAN = os.path.join(BASE_DIR, "src/data/classified/NO_Bread")
 
 
 
