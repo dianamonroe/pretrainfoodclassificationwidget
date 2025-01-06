@@ -12,6 +12,11 @@ CLASSIFIED_FOLDER = '/workspace/pretrainfoodclassificationwidget/classified'
 os.makedirs(IMAGES_FOLDER, exist_ok=True)
 os.makedirs(CLASSIFIED_FOLDER, exist_ok=True)
 
+# Crear carpetas si no existen
+os.makedirs('classified/yes', exist_ok=True)
+os.makedirs('classified/no', exist_ok=True)
+os.makedirs('classified/not_bread', exist_ok=True)
+
 @app.route('/')
 def index():
     # Servir el archivo index.html desde la carpeta templates
