@@ -1,8 +1,10 @@
-const imagesFolder = "./images/";  // Actualiza la ruta de las imágenes a clasificar
+const imagesFolder = "./images/";
 const classifiedFolders = {
   yes: "./classified/yes/",
   no: "./classified/no/",
-  not_bread: "./classified/not_bread/"
+  not_bread: "./classified/not_bread/",
+  skipped: "./classified/skipped/",
+  repeated: "./classified/repeated/"
 };
 
 let images = [];
@@ -11,42 +13,80 @@ let history = [];
 
 // Cargar las imágenes al inicio
 window.onload = async () => {
-  const response = await fetch("/list_images");  // Endpoint para listar las imágenes
+  const response = await fetch("/list_images");
   images = await response.json();
+  updateRemainingImages();
   showImage();
 };
 
-// Muestra la imagen actual
+function updateRemainingImages() {
+  const remaining = images.length - currentIndex;
+  document.getElementById("remainingImages").textContent = `Imágenes por clasificar: ${remaining}`;
+}
+
 function showImage() {
   if (currentIndex < images.length) {
-    document.getElementById("current-image").src = imagesFolder + images[currentIndex];
+    document.getElementById("currentImage").src = imagesFolder + images[currentIndex];
   } else {
     alert("¡Todas las imágenes han sido clasificadas!");
   }
+  updateRemainingImages();
 }
 
-// Clasifica la imagen seleccionada
+let reverseHistory = []; // Historial para revertir clasificación
+
 function classify(category) {
-  if (currentIndex < images.length) {
-    const imageName = images[currentIndex];
-    moveFile(imagesFolder + imageName, classifiedFolders[category] + imageName);
-    history.push(currentIndex);  // Guarda el índice de la imagen clasificada
-    currentIndex++;  // Avanza al siguiente índice
-    showImage();  // Muestra la siguiente imagen
-  }
+    if (currentIndex < images.length) {
+        const imageName = images[currentIndex];
+        const source = imagesFolder + imageName;
+        const destination = classifiedFolders[category] + imageName;
+
+        moveFile(source, destination);
+        history.push({ index: currentIndex, category }); // Guardar historial con categoría
+        reverseHistory.push({ source: destination, destination: source }); // Guardar para deshacer
+
+        currentIndex++;
+        showImage();
+    }
 }
 
-// Regresa a la imagen anterior
 function goBack() {
   if (history.length > 0) {
-    currentIndex = history.pop();  // Retrocede al índice anterior
-    showImage();
+      currentIndex = history.pop();
+      const previousImage = images[currentIndex];
+      
+      // Restaurar imagen si estaba en una carpeta clasificada
+      Object.values(classifiedFolders).forEach(async folder => {
+          const source = folder + previousImage;
+          const destination = imagesFolder + previousImage;
+          try {
+              await fetch("/restore_file", {
+                  method: "POST",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify({ source, destination })
+              });
+          } catch (error) {
+              console.error("Error restaurando la imagen:", error);
+          }
+      });
+
+      showImage();
   } else {
-    alert("No hay imágenes previas para volver.");
+      alert("No hay imágenes previas para volver.");
   }
 }
 
-// Simula mover el archivo (realiza una llamada POST al servidor)
+
+function skip() {
+  if (currentIndex < images.length) {
+    const imageName = images[currentIndex];
+    moveFile(imagesFolder + imageName, classifiedFolders.skipped + imageName);
+    history.push(currentIndex);
+    currentIndex++;
+    showImage();
+  }
+}
+
 async function moveFile(source, destination) {
   await fetch("/move_file", {
     method: "POST",

@@ -16,15 +16,15 @@ os.makedirs(CLASSIFIED_FOLDER, exist_ok=True)
 os.makedirs('classified/yes', exist_ok=True)
 os.makedirs('classified/no', exist_ok=True)
 os.makedirs('classified/not_bread', exist_ok=True)
+os.makedirs('classified/skipped', exist_ok=True)
+os.makedirs('classified/repeated', exist_ok=True)  # Nueva carpeta para imágenes repetidas
 
 @app.route('/')
 def index():
-    # Servir el archivo index.html desde la carpeta templates
     return render_template('index.html')
 
 @app.route('/list_images')
 def list_images():
-    # Listar las imágenes en la carpeta de imágenes no clasificadas
     images = os.listdir(IMAGES_FOLDER)
     return jsonify(images)
 
@@ -35,10 +35,22 @@ def move_file():
     destination = data['destination']
 
     try:
-        # Asegurarse de que la carpeta de destino exista
         os.makedirs(os.path.dirname(destination), exist_ok=True)
-        shutil.move(source, destination)  # Mover archivo
+        shutil.move(source, destination)
         return jsonify({"message": "Archivo movido correctamente."}), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@app.route('/restore_file', methods=['POST'])
+def restore_file():
+    data = request.get_json()
+    source = data['source']
+    destination = data['destination']
+
+    try:
+        os.makedirs(os.path.dirname(destination), exist_ok=True)
+        shutil.move(source, destination)
+        return jsonify({"message": "Archivo restaurado correctamente."}), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 

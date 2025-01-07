@@ -5,72 +5,115 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Clasificador de Pan</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <style>
+        .titulo-grande {
+            font-size: 40px;
+        }
+        .titulo-mediano {
+            font-size: 20px;
+        }
+        .contador {
+            margin-top: 20px;
+            font-size: 16px;
+            font-weight: bold;
+        }
+        .action-button.skip {
+            background-color: black;
+            color: white;
+        }
+        .remaining-images {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 18px;
+            font-weight: bold;
+        }
+    </style>
 </head>
 <body>
     <div class="container">
-        <h1>¿Es pan 100% masa madre?</h1>
+        <h1 class="titulo-grande">Eat Blindly</h1>
+        <h3>Beta for Chefs</h3>
+        <h2>¿Es pan +90% masa madre?</h2>
         <div id="imageContainer" class="image-container">
             <img id="currentImage" src="" alt="Imagen para clasificar">
         </div>
         <div class="button-container">
-            <button id="prevButton" class="action-button previous" onclick="goBack()">Anterior</button>
+            <button id="prevButton" class="action-button previous" onclick="goBack()">Volver</button>
+            <button id="skipButton" class="action-button skip" onclick="skip()">Saltar</button>
+            <button id="notBreadButton" class="action-button not-bread" onclick="classify('not_bread')">No es pan</button>
             <button id="noButton" class="action-button no" onclick="classify('no')">No</button>
-            <button id="notBreadButton" class="action-button not-bread" onclick="classify('not_bread')">No es Pan</button>
             <button id="yesButton" class="action-button yes" onclick="classify('yes')">Sí</button>
+            <button id="repeatedButton" class="action-button repeated" onclick="classify('repeated')">Repetida</button>
+        </div>
+        <div class="contador">
+            <span id="remainingImages">Imágenes por clasificar: 0</span>
         </div>
     </div>
     <script src="https://hammerjs.github.io/dist/hammer.min.js"></script>
     <script>
-        // Las rutas de las carpetas de imágenes y clasificación
-        const imagesFolder = "./images/";  
+        const imagesFolder = "./images/";
         const classifiedFolders = {
             yes: "./classified/yes/",
             no: "./classified/no/",
-            not_bread: "./classified/not_bread/"
+            not_bread: "./classified/not_bread/",
+            skipped: "./classified/skipped/",
+            repeated: "./classified/repeated/"
         };
 
         let images = [];
         let currentIndex = 0;
         let history = [];
 
-        // Cargar las imágenes al inicio
         window.onload = async () => {
-            const response = await fetch("/list_images");  // Endpoint para listar las imágenes
+            const response = await fetch("/list_images");
             images = await response.json();
+            updateRemainingImages();
             showImage();
         };
 
-        // Muestra la imagen actual
+        function updateRemainingImages() {
+            const remaining = images.length - currentIndex;
+            document.getElementById("remainingImages").textContent = `Imágenes por clasificar: ${remaining}`;
+        }
+
         function showImage() {
             if (currentIndex < images.length) {
                 document.getElementById("currentImage").src = imagesFolder + images[currentIndex];
             } else {
                 alert("¡Todas las imágenes han sido clasificadas!");
             }
+            updateRemainingImages();
         }
 
-        // Clasifica la imagen seleccionada
         function classify(category) {
             if (currentIndex < images.length) {
                 const imageName = images[currentIndex];
                 moveFile(imagesFolder + imageName, classifiedFolders[category] + imageName);
-                history.push(currentIndex);  // Guarda el índice de la imagen clasificada
-                currentIndex++;  // Avanza al siguiente índice
-                showImage();  // Muestra la siguiente imagen
+                history.push(currentIndex);
+                currentIndex++;
+                showImage();
             }
         }
 
-        // Regresa a la imagen anterior
         function goBack() {
             if (history.length > 0) {
-                currentIndex = history.pop();  // Retrocede al índice anterior
+                currentIndex = history.pop();
                 showImage();
             } else {
                 alert("No hay imágenes previas para volver.");
             }
         }
 
-        // Simula mover el archivo (realiza una llamada POST al servidor)
+        function skip() {
+            if (currentIndex < images.length) {
+                const imageName = images[currentIndex];
+                moveFile(imagesFolder + imageName, classifiedFolders.skipped + imageName);
+                history.push(currentIndex);
+                currentIndex++;
+                showImage();
+            }
+        }
+
         async function moveFile(source, destination) {
             await fetch("/move_file", {
                 method: "POST",
