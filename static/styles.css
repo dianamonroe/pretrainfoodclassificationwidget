@@ -74,11 +74,26 @@ h1 {
 }
 
 .not-bread {
-  background-color: #eab308;
-  color: #18181b;
+  background-color: #4a5568; /* Changed to dark gray */
+  color: white;
 }
 
 .yes {
   background-color: #22c55e;
+  color: white;
+}
+
+.pastry {
+  background-color: #eab308; /* Changed to orange */
+  color: #18181b;
+}
+
+/* Keeping the existing styles for other buttons */
+.repeated {
+  /* Add styles for the repeated button if needed */
+}
+
+.skip {
+  background-color: black;
   color: white;
 }

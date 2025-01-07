@@ -17,7 +17,8 @@ os.makedirs('classified/yes', exist_ok=True)
 os.makedirs('classified/no', exist_ok=True)
 os.makedirs('classified/not_bread', exist_ok=True)
 os.makedirs('classified/skipped', exist_ok=True)
-os.makedirs('classified/repeated', exist_ok=True)  # Nueva carpeta para imágenes repetidas
+os.makedirs('classified/repeated', exist_ok=True)
+os.makedirs('classified/pastry', exist_ok=True)  # Nueva carpeta para bollería
 
 @app.route('/')
 def index():

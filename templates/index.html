@@ -38,12 +38,13 @@
             <img id="currentImage" src="" alt="Imagen para clasificar">
         </div>
         <div class="button-container">
-            <button id="prevButton" class="action-button previous" onclick="goBack()">Volver</button>
-            <button id="skipButton" class="action-button skip" onclick="skip()">Saltar</button>
-            <button id="notBreadButton" class="action-button not-bread" onclick="classify('not_bread')">No es pan</button>
+            <button id="repeatedButton" class="action-button repeated" onclick="classify('repeated')">Repetida</button>
+            <button id="notBreadButton" class="action-button not-bread" onclick="classify('not_bread')">No pan</button>
+            <button id="pastryButton" class="action-button pastry" onclick="classify('pastry')">Bollería</button>     
             <button id="noButton" class="action-button no" onclick="classify('no')">No</button>
             <button id="yesButton" class="action-button yes" onclick="classify('yes')">Sí</button>
-            <button id="repeatedButton" class="action-button repeated" onclick="classify('repeated')">Repetida</button>
+            <button id="prevButton" class="action-button previous" onclick="goBack()">Volver</button>
+            <button id="skipButton" class="action-button skip" onclick="skip()">Saltar</button>
         </div>
         <div class="contador">
             <span id="remainingImages">Imágenes por clasificar: 0</span>
@@ -57,7 +58,8 @@
             no: "./classified/no/",
             not_bread: "./classified/not_bread/",
             skipped: "./classified/skipped/",
-            repeated: "./classified/repeated/"
+            repeated: "./classified/repeated/",
+            pastry: "./classified/pastry/" // Nueva carpeta para bollería
         };
 
         let images = [];
